@@ -1,22 +1,19 @@
-import * as D from "https://github.com/giluis/tocko/raw/main/index.ts"
-import Matrix from "./src/matrix.ts"
+import * as D from './deps/testDeps.ts'
+import {matrix} from './src/matrix.ts'
 
-console.log(D);
+console.log(D)
 
-
-const m1 = Matrix.load([
-
-    [1,2,3,4],
-    [5,6,7,8],
-    [9,0,1,2],
+let m1 = matrix([
+	[1, 2, 3],
+	[1, 2, 3],
+	[1, 2, 3],
 ])
 
-const m2 = Matrix.load([
-    [1],
-    [5],
-    [9],
-    [9],
+let m2 = matrix([
+	[1, 2, 3],
+	[1, 2, 3],
+	[1, 2, 3],
 ])
 
-Matrix.mult(m1,m2).print();
-export default Matrix
+console.log( m1.mult(m2).mult(m2).mult(m2).mult(m2).mult(m2).mult(m2).mult(m2).mult(m2) )
+

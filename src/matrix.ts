@@ -1,3 +1,7 @@
+export function matrix(data:number[][]|number[]):Matrix{
+	return Matrix.load(data);
+}
+
 export default class Matrix{
     numRows: number;
     numCols: number;
@@ -100,13 +104,18 @@ export default class Matrix{
 
 
     /**
-     * Adds matrix to this, returns this
+     * Subs matrix and this, returns this
      * @param {Matrix} matrix 
      */
-    sub(matrix: Matrix): Matrix {
-        if (matrixA.numRows != matrixB.numRows || matrixA.numCols != matrixB.numCols)
+    sub(m: Matrix): Matrix {
+        if (this.numRows != m.numRows || this.numCols != m.numCols)
             throw "Matrix.sub: cannot sub matrices with different dimensions";
-        return this.map(v=>v*-1).add(matrix);
+		for (let i = 0 ; i < this.numRows; i ++){
+			for (let j = 0 ; j < this.numCols; j ++){
+				this.data[i][j] -= m.get(i,j);
+			}
+		}
+		return this;
     }
 
     /**
@@ -119,7 +128,7 @@ export default class Matrix{
             throw 'mult failed: matrix passed as argument was not defined';
         if (this.isEmpty() || m.isEmpty())
             return Matrix.empty();
-        if (this.numCols !== m2.numRows)
+        if (this.numCols !== m.numRows)
             throw 'mult failed: m1.numCols != m2.numRows'
         let data:number[][] = [];
         for (let i = 0; i < this.numRows; i++) {
@@ -155,15 +164,24 @@ export default class Matrix{
     hadamard(m:Matrix):Matrix{
         if(this.numRows!== m.numRows || this.numCols!== m.numCols)
             throw "Matrices cannot have different size"
-        return this.map((v,i,j)=>this.get(i,j)*matrixB.get(i,j));
+        return this.map((v,i,j)=>v*m.get(i,j));
     }
 
     /**
     * Mults by scalar. Chainable.
     * */
     multScalar(scalar:number):Matrix{
-        return this.map(matrix,(v)=>v*scalar);    
+        return this.map((v:number)=>v*scalar);    
     }
+	
+
+	toArray():number[][] | number []{
+		if(this.numCols === 1){
+			return this.data.map((v:number[])=>v[0])
+		} else {
+			return this.data.map((v:number[])=>v)
+		}
+	}
 
     /**
      * Returns a matrix, built from the array passed as argument
@@ -185,10 +203,12 @@ export default class Matrix{
      * Horizontal array if array if matrix is onedimensional
      * @param arr 
      */
-    static load(arr: number[][]): Matrix {
-        let m = new Matrix(arr.length, arr[0].length);
-        m.setData(arr);
-        return m;
+    static load(arr: number[][]|number[]): Matrix {
+		if(!(arr[0] instanceof Array))
+			return Matrix.fromArray(arr as number[]);
+		let m = new Matrix(arr.length, arr[0].length);
+		m.setData(arr as number[][]);
+		return m;
     }
 
     /**

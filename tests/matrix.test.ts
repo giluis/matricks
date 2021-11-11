@@ -1,507 +1,515 @@
-import Matrix from "../src/matrix.ts";
+import Matrix,{matrix }  from "../src/matrix.ts";
+import Test from "../deps.ts";
 
-// import {ITestClass} from "./testinterface.js";
-// import { fail, assertArrayEquals, assertMatrixEquals, assertFalse, assertTrue } from "./assertions.js";
+const {test,suite,assert,fail,assertEquals,assertArrayEquals}  = Test;
 
-import {test,suite,assert} from "../testinglibrary.ts";
 
 suite("Test add",()=>{
-    test("Gives correct result for valid matrices",()=>{
-        const m1 = matrix([
+	test("Square add",()=>{
+        const square = matrix([
             [1, 1, 1],
             [2, 2, 2],
             [3, 3, 3],
         ])
-
-        const m2 = matrix([
+        const square1 = matrix([
             [1, 1, 1],
             [1, 1, 1],
             [1, 1, 1]
         ])
+        const expected = matrix([
+            [2, 2, 2],
+            [3, 3, 3],
+            [4, 4, 4]
+        ])
+        assertEquals(expected, square.add(square1));
+	})
 
-        const expected = matrix({
+	test("Rectangular matrices",()=>{
+
+		const rect = matrix([
+			[0, 0],
+			[1, 1],
+			[1, 2]
+		])
+
+
+		const rect1 = matrix([
+			[1, 1],
+			[1, 1],
+			[1, 1]
+		])
+
+		const expected = matrix([
+			[1, 1],
+			[2, 2],
+			[2, 3]
+		])
+		assertEquals(expected, rect.add(rect1));
+	});
+
+	test("Add matrices of different dimensions",()=>{
+		// 3 x 3
+		const square = matrix([
+			[1, 1, 1],
+			[2, 2, 2],
+			[3, 3, 3],
+		])
+		// 3 x 2
+		const rect = matrix([
+			[1, 1],
+			[1, 1],
+			[1, 1]
+		])
+		try {
+			square.add(rect);
+			fail("Adding matrices of different sizes should result in an error");
+		} catch (ignored) { }
+	})
+});
+
+
+suite("Test multScalar",()=> {
+	test("Valid input square matrix",()=>{
+        // 3 x 3
+		const matrixA = matrix([
+			[2, 2, 2],
+			[2, 2, 2],
+			[2, 2, 2],
+		])
+
+		const scalar = 3;
+		const result = matrixA.multScalar(scalar);
+        // 3 x 3
+		const expected = matrix([
+			[6, 6, 6],
+			[6, 6, 6],
+			[6, 6, 6],
+		])
+		assertEquals(expected, result);
+
+    })
+    test("Valid input vector",()=>{
+
+        const matrixB = matrix([
+            [3, 3, 3],
+        ])
+
+        const expected = Matrix.fromArray([1, 1, 1]);
+        const result = matrixB.multScalar(1/3);
+        assertEquals(expected,result);
+    })
+        // 3 X 1
+
+})
+
+
+
+suite("Test hadamard",()=>  {
+	test("Valid inputs",()=>{
+		const matrixA = matrix([
+			[2, 2, 2],
+			[2, 2, 2],
+			[2, 2, 2],
+		])
+
+		const matrixB = matrix([
+			[3, 3, 3],
+			[3, 3, 3],
+			[3, 3, 3],
+		])
+
+		const result = matrixA.hadamard(matrixB);
+		const expected = matrix([
+			[6, 6, 6],
+			[6, 6, 6],
+			[6, 6, 6],
+		])
+
+		assertEquals(expected, result);
+	})
+
+	test("Invalid inputs",()=>{
+
+		const matrixA = matrix([
+			[2, 2, 2],
+			[2, 2, 2],
+			[2, 2, 2],
+		])
+		let matrixC: Matrix;
+		try {
+			matrixC = matrix([
+				[1, 2],
+				[1, 2],
+				[1, 2],
+
+			])// different number of columns
+			matrixA.hadamard(matrixC);
+			fail("Matrices with different number of columns were passed as arguments, yet no exception was thrown");
+		} catch (ignore) { };
+
+		const matrixB = matrix([
+			[2, 2],
+			[2, 2],
+			[2, 2],
+		])
+		try {
+			matrixC = matrix([
+				[1, 2, 3],
+				[1, 2, 3],
+			])// different number of rows
+			matrixB.hadamard(matrixC);
+			fail("Matrices with different number of columns were passed as arguments, yet no exception was thrown");
+		} catch (ignore) { };
+	})
+
+	test("With one dimensional matricies",()=>{
+		let vec1: Matrix;
+		let vec2: Matrix;
+
+		vec1 = matrix([1, 2, 3]);
+		vec2 = matrix([4, 2, 3]);
+		const result = vec1.hadamard(vec2);
+		const expected = matrix([4, 4, 9]);
+
+
+		assertEquals(expected, result);
+
+		try {
+			vec1 = matrix([1, 2, 3]);
+			vec2 = matrix([4, 3]);
+			vec1.hadamard(vec2);
+			fail("Vectors of different sizes were passed as arguments, yet no exception was thrown");
+		} catch (ignored) { };
+
+	})
+})
+
+
+
+
+
+suite("Test load", () => {
+	test("Valid inputs",()=>{
+		const expected = new Matrix(2, 3);
+		expected.setData([
+			[1, 2, 3],
+			[2, 3, 4],
+		])
+
+		const result = Matrix.load([
+			[1, 2, 3],
+			[2, 3, 4],
+		])
+		assertEquals(expected, result);
+	})
+})
+
+suite("test map",()=>  {
+	test("valid inputs",()=>{
+		const fn = (v: number) => v + 1;
+		const m = matrix([
+            [1,1,1],
+            [1,1,1],
+            [1,1,1],
+        ])
+		const expected = matrix([
             [2,2,2],
-            [3,3,3],
-            [4,4,4],
-        })
+            [2,2,2],
+            [2,2,2],
+		])
+		const result = m.map(fn);
+		assertEquals(expected, result);
+	})
+})
 
-        const result = m1.add(m2);
-        assert(result.equals(expected));
+suite("test Mult",()=>  {
+	test("valid inputs",()=>{
+		//2 x 3;
+		const m1 = matrix([
+			[1, 2, 3],
+			[1, 1, 1],
+		])
+
+		//3 x 3;
+		const m2 = matrix([
+			[1, 1, 1],
+			[1, 0, 1],
+			[3, 1, 1],
+		])
+
+		const result =  m1.mult(m2);
+
+		//2 x 3;
+		const expected = matrix([
+			[12, 4, 6],
+			[5, 2, 3]
+		]);
+
+
+		assertEquals(expected, result);
+	})
+	test("valid inputs 2",()=>{
+		//2 x 4;
+		const m1 = matrix([
+			[-2, 3, 1, 7],
+			[1, 4, 0, -1]
+		])
+
+		//4 x 3;
+		const m2 = matrix([
+			[-1, 1, 2],
+			[2, 3, -2],
+			[1, -1, 1],
+			[3, 1, 0]
+		])
+
+		//2 x 3;
+		const expected = matrix([
+			[30, 13, -9],
+			[4, 12, -6]
+		]);
+
+		const result = m1.mult(m2);
+
+		assertEquals(expected, result);
+	})
+
+	test("square and vector",()=>{
+
+		//3 x 3;
+		const m1 = matrix([
+			[1, 2, 3],
+			[4, 5, 6],
+			[7, 8, 9],
+		]);
+
+		//3 x 1;
+		const m2 = matrix([
+			[3],
+			[2],
+			[1],
+		])
+
+		//3 x 1;
+		const expected = matrix([
+			[10],
+			[28],
+			[46]
+		])
+
+		const result =  m1.mult(m2);
+		assertEquals(expected, result);
+	})
+
+	test("Invalid inputs",()=>{
+		// 3 x 3;
+		const m1 = matrix([
+			[1,2,3],
+			[1,2,3],
+			[1,2,3],
+		])
+
+		//2 x 3;
+		const m2 = matrix([
+			[1,2,3],
+			[1,2,3],
+		])
+
+		try {
+			m1.mult(m2);
+			fail("Should have thrown exception: cannot mulitply 3x3 and 2x3")
+		}catch(ignored){}
+
+	})
+})
+
+
+
+suite("Test toArray", () =>  {
+	test("With two dimensional array",()=>{
+		//2 x 3;
+		const expected = matrix([
+			[1, 2, 3],
+			[4, 5, 6],
+		])
+
+		const result = matrix(expected.toArray());
+		assertEquals(expected, result)
+	})
+
+	test("With horizontal one dimensional array",()=>{
+		//1 x 4
+        const m = matrix([
+            [1, 2, 3, 4]
+        ])
+
+        const expected = [[1, 2, 3, 4]];
+
+        const result = m.toArray();
+        assertArrayEquals(expected, result);
+
+	})
+	test("With 1x1 array",()=>{
+		//1 x 1;
+        const m = matrix([
+            [2]
+        ]);
+
+        const expected = [2];
+        const result = m.toArray();
+		console.log(m,expected,result);
+        assertArrayEquals(expected, result);
+	})
+
+	test("With 5x1 matrix (a vertical array)",()=>{
+		//5 x 1;
+        const m = matrix([1,2,3,4,5]);
+        const expected = [1,2,3,4,5];
+        const result = m.toArray();
+        assertArrayEquals(expected, result);
+	})
+})
+suite("Test transpose",()=>  {
+	test("valid inputs",()=>{
+		//3 x 2
+		const  m =matrix([
+			[1, 2],
+			[2, 3],
+			[3, 1],
+		])
+
+		//2 x 3
+		const expected =matrix([
+			[1, 2, 3],
+			[2, 3, 1]
+		])
+		const result = m.transpose();
+		assertEquals(expected, result);
+	})
+
+	test("with array",()=>{
+		const m = matrix([1, 2, 3, 4]);
+		//4 x 1
+		const expected =matrix([ [1, 2, 3, 4] ])
+		const result = m.transpose();
+		assertEquals(expected, result);
+
+
+	})
+})
+
+suite("Test from Array",()=>{
+
+    test("valid inputs",() => {
+        const expected = new Matrix(4, 1);
+        expected.setData([
+            [1], [2], [3], [4] //this is what a 4x1 looks like as a matrix
+		]);
+
+        const result = Matrix.fromArray([1, 2, 3, 4]);
+        assertEquals(expected, result);
     })
 })
 
 
-report.suites.map(s=>console.log(s.tests))
-/*
-export default class MatrixTests  implements ITestClass{
-    header(): string{
-        return "==== Matrix Tests ====";
-    }
-    testInstanceAdd()  {
-        let squareNormal = Matrix.load([
-            [1, 1, 1],
-            [2, 2, 2],
-            [3, 3, 3],
-        ])
-
-        let rectNormal = Matrix.load([
-            [0, 0],
-            [1, 1],
-            [1, 2]
-        ])
-
-        let square0 = Matrix.load([
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]
-        ])
-
-        let rect0 = Matrix.load([
-            [0, 0],
-            [0, 0],
-            [0, 0]
-        ])
-        assertMatrixEquals(squareNormal.add(square0), squareNormal);
-        assertMatrixEquals(rectNormal.add(rect0), rectNormal);
-
-        try {
-            squareNormal.add(rectNormal);
-            fail("Adding matrices of different sizes should result in an error");
-        } catch (ignored) { }
-
-        assertMatrixEquals(rectNormal.add(rectNormal), Matrix.load([
-            [0, 0],
-            [2, 2],
-            [2, 4]
-        ]))
-
-    }
-
-
-    testMultScalar() {
-        let matrixA = Matrix.load([
-            [2, 2, 2],
-            [2, 2, 2],
-            [2, 2, 2],
-        ])
-
-        let matrixB = Matrix.load([
-            [3, 3, 3],
-        ])
-
-        let matrixC = Matrix.fromArray([1, 1, 1]);
-
-        let expected;
-        let result;
-
-
-        result = Matrix.multScalar(matrixA, 3);
-        expected = Matrix.load([
-            [6, 6, 6],
-            [6, 6, 6],
-            [6, 6, 6],
-        ])
-
-        assertMatrixEquals(expected, result);
-
-        result = Matrix.multScalar(matrixB, 3);
-        expected = Matrix.load([
-            [9, 9, 9]
-        ]);
-
-        assertMatrixEquals(expected, result);
-
-        result = Matrix.multScalar(matrixC, 4);
-        expected = Matrix.fromArray([4, 4, 4]);
-
-        assertMatrixEquals(expected, result);
-    }
-    testMultElementWise()  {
-        let matrixA = Matrix.load([
-            [2, 2, 2],
-            [2, 2, 2],
-            [2, 2, 2],
-        ])
-
-        let matrixB = Matrix.load([
-            [3, 3, 3],
-            [3, 3, 3],
-            [3, 3, 3],
-        ])
-
-        let result = Matrix.hadamard(matrixA, matrixB);
-        let expected = Matrix.load([
-            [6, 6, 6],
-            [6, 6, 6],
-            [6, 6, 6],
-        ])
-
-        assertMatrixEquals(expected, result);
-
-        try {
-            Matrix.hadamard(matrixA, null);
-            fail("Null was passed as argument to multElementWise, yet no exception was thrown");
-        } catch (ignore) { };
-
-        try {
-            Matrix.hadamard(null, matrixA);
-            fail("Null was passed as argument to multElementWise, yet no exception was thrown");
-        } catch (ignore) { };
-
-        let matrixC: Matrix;
-        try {
-            matrixC = Matrix.load([
-                [1, 2],
-                [1, 2],
-                [1, 2],
-
-            ])// different number of columns
-            Matrix.hadamard(matrixA, matrixC);
-            fail("Matrices with different number of columns were passed as arguments, yet no exception was thrown");
-        } catch (ignore) { };
-
-        try {
-            matrixC = Matrix.load([
-                [1, 2, 3],
-                [1, 2, 3],
-            ])// different number of rows
-            Matrix.hadamard(matrixA, matrixC);
-            fail("Matrices with different number of columns were passed as arguments, yet no exception was thrown");
-        } catch (ignore) { };
-
-        try {
-            matrixC = Matrix.load([
-                [1, 2],
-                [1, 2],
-            ])// different number of rows
-            Matrix.hadamard(matrixA, matrixC);
-            fail("Matrices with different number of columns were passed as arguments, yet no exception was thrown");
-        } catch (ignore) { };
-
-        let vec1: Matrix;
-        let vec2: Matrix;
-
-        vec1 = Matrix.fromArray([1, 2, 3]);
-        vec2 = Matrix.fromArray([4, 2, 3]);
-        result = Matrix.hadamard(vec1, vec2);
-        expected = Matrix.fromArray([4, 4, 9]);
-
-
-        assertMatrixEquals(expected, result);
-
-        try {
-            vec1 = Matrix.fromArray([1, 2, 3]);
-            vec2 = Matrix.fromArray([4, 3]);
-            Matrix.hadamard(vec1, vec2);
-            fail("Vectors of different sizes were passed as arguments, yet no exception was thrown");
-        } catch (ignored) { };
-
-
-    }
-    testLoad()  {
-        let expected = new Matrix(2, 3);
-        expected.setData([
-            [1, 2, 3],
-            [2, 3, 4],
-        ])
-
-        let result = Matrix.load([
-            [1, 2, 3],
-            [2, 3, 4],
-        ])
-
-        assertMatrixEquals(expected, result);
-
-    }
-    testMap()  {
-        let fn = (v: number, i: number, j: number) => i === j ? 1 : 0;
-
-        let m = Matrix.random(3, 3)
-        let expected = new Matrix(3, 3);
-        expected.setData([
-            [1, 0, 0],
-            [0, 1, 0],
-            [0, 0, 1]
-        ])
-
-        let result = Matrix.map(m, fn);
-
-        assertMatrixEquals(expected, result);
-
-        let dsigmoid = (v: number, i: number, j: number) => v * (1 - v);
-
-    }
-
-    testMult()  {
-        let m1 = new Matrix(2, 3);
-        m1.setData([
-            [1, 2, 3],
-            [1, 1, 1],
-        ])
-
-        let m2 = new Matrix(3, 3);
-        m2.setData([
-            [1, 1, 1],
-            [1, 0, 1],
-            [3, 1, 1],
-        ])
-
-        let result = Matrix.mult(m1, m2);
-
-        let expected = new Matrix(2, 3);
-        expected.setData([
-            [12, 4, 6],
-            [5, 2, 3]
-        ]);
-
-
-        assertMatrixEquals(expected, result);
-
-        m1 = new Matrix(2, 4);
-        m1.setData([
-            [-2, 3, 1, 7],
-            [1, 4, 0, -1]
-        ])
-
-        m2 = new Matrix(4, 3);
-        m2.setData([
-            [-1, 1, 2],
-            [2, 3, -2],
-            [1, -1, 1],
-            [3, 1, 0]
-        ])
-
-        expected = new Matrix(2, 3);
-        expected.setData([
-            [30, 13, -9],
-            [4, 12, -6]
-        ]);
-
-        result = Matrix.mult(m1, m2);
-
-        assertMatrixEquals(expected, result);
-
-
-        m1 = new Matrix(3, 3);
-        m1.setData([
-            [1, 2, 3],
-            [4, 5, 6],
-            [7, 8, 9],
-        ]);
-
-        m2 = new Matrix(3, 1);
-        m2.setData([
-            [3],
-            [2],
-            [1],
-        ])
-
-        expected = new Matrix(3, 1);
-        expected.setData([
-            [10],
-            [28],
-            [46]
-        ])
-
-        result = Matrix.mult(m1, m2);
-        assertMatrixEquals(expected, result);
-    }
-    testRandom()  {
-
-        let newMatrix = Matrix.random(2, 3);
-    }
-    testToArrayTwoDimensional()  {
-        //Test wether or not the data is maintained
-        let expected = Matrix.load([
-            [1, 2, 3],
-            [4, 5, 6],
-        ])
-
-        let result = Matrix.load(Matrix.toArray(expected));
-
-        assertMatrixEquals(expected, result)
-    }
-    testToArrayOneDimensional()  {
-        let m = Matrix.load([
-            [1, 2, 3, 4]
-        ])
-
-        let expected = [[1, 2, 3, 4]];
-
-        let result = Matrix.toArray(m);
-
-        assertArrayEquals(expected, result);
-
-        m = new Matrix(1, 1);
-        m.setData([
-            [2]
-        ]);
-
-        expected = [[2]];
-        result = Matrix.toArray(m);
-        assertArrayEquals(expected, result);
-
-
-    }
-    testTranspose()  {
-        let rows = 3;
-        let cols = 2;
-        let m = new Matrix(rows, cols);
-        m.setData([
-            [1, 2],
-            [2, 3],
-            [3, 1],
-        ])
-
-        let expected = new Matrix(cols, rows);//switch rows for cols
-        expected.setData([
-            [1, 2, 3],
-            [2, 3, 1]
-        ])
-        let result = Matrix.transpose(m);
-        assertMatrixEquals(expected, result);
-
-        //test transpose for array
-
-        rows = 4;
-        cols = 1;
-        m = Matrix.fromArray([1, 2, 3, 4]);
-        expected = new Matrix(cols, rows);
-        expected.setData([
-            [1, 2, 3, 4]
-        ])
-        result = Matrix.transpose(m);
-        assertMatrixEquals(expected, result);
-    }
-    testFromArray()  {
-
-
-        let expected = new Matrix(4, 1);
-        expected.setData([
-            [1], [2], [3], [4]
-        ]);
-
-        let result = Matrix.fromArray([1, 2, 3, 4]);
-        assertMatrixEquals(expected, result);
-    }
-    testClone()  {
-
-
-
-        let rows = 2;
-        let cols = 4;
-        let m1 = new Matrix(rows, cols);
-        m1.setData([
+suite("Test clone",()=>{
+    test("valid inpus",() => {
+		//2 x 4
+        const m1 =matrix([
             [1, 0, 3, 1],
             [1, 0, 1, 9],
         ]);
+        const result = m1.clone();
+        assertEquals(result, m1);
+    })
+})
 
-        let result = m1.clone();
-
-        assertMatrixEquals(result, m1);
-
-    }
-    testSub()  {
-
-        let m1 = Matrix.load([
+suite("Test Sub",()=>{
+    test("valid inputs",()=>  {
+		//2 x 3
+        const m1 = matrix([
             [1, 0, 0],
             [1, 0, 1],
         ]);
 
-        let m2 = Matrix.load([
+		//2 x 3
+        const m2 = matrix([
             [1, 1, 1],
             [0, 0, 0],
         ]);
-        let expected = Matrix.load([
+
+		//2 x 3
+        const expected = matrix([
             [0, -1, -1],
             [1, 0, 1]
         ]);
-        let result = Matrix.sub(m1, m2);
 
-        assertMatrixEquals(expected, result);
+        const result = m1.sub(m2);
+		console.log(result);;
+        assertEquals(expected, result);
+	})
 
-        let invalidMatrix = Matrix.load([
+	test("invalid inputs",()=>{
+		//2 x 5
+        const invalidMatrix = matrix([
             [1, 2, 3, 4, 5],
             [1, 2, 3, 4, 5]
-        ]);//m1 and m2 don't have the same number of columns
+        ]);
+
+		//2 x 3
+		const m1 = matrix([
+            [1, 0, 0],
+            [1, 0, 1],
+        ])
 
         try {
-            Matrix.sub(invalidMatrix, m1);
+            invalidMatrix.sub(m1);
+			fail("Different sized matrices were subbed, yet no exception was thrown")
         } catch (err) {
             return;
         }
+	})
+})
 
-        fail("Different sized matrices were subbed, yet no exception was thrown")
+suite("Test Equals",()=>{
+    test("Same matrix",()=>  {
 
-
-
-    }
-    testAdd()  {
-
-        let rows = 2;
-        let cols = 3;
-        let m1 = new Matrix(rows, cols);
-        m1.setData([
+		// 2 x 3
+        const m =matrix([
             [1, 0, 0],
             [1, 0, 1],
         ]);
 
-        let m2 = new Matrix(rows, cols);
-        m2.setData([
-            [1, 1, 1],
-            [0, 0, 0],
-        ]);
-
-        let expected = new Matrix(rows, cols);
-        expected.setData([
-            [2, 1, 1],
-            [1, 0, 1]
-        ]);
-        let result = Matrix.add(m1, m2);
-
-        assertMatrixEquals(expected, result);
-
-        let invalidMatrix = new Matrix(2, cols + 1);
-
-        try {
-            Matrix.add(invalidMatrix, m1);
-        } catch (err) {
-            return;
-        }
-
-        fail("Different sized matrices were added, yet no exception was thrown")
-
-
-    }
-    testEquals()  {
-
-        let m = new Matrix(2, 3);
-        m.setData([
+		// 2 x 3
+        const equal =matrix([
             [1, 0, 0],
             [1, 0, 1],
         ]);
 
-        let equal = new Matrix(2, 3)
-        equal.setData([
-            [1, 0, 0],
-            [1, 0, 1],
-        ]);
+		// 4 x 2
+        const diffNumRows = matrix([
+			[1,2],
+			[1,2],
+			[1,2],
+			[1,2],
+		])
 
-        let differentRows = new Matrix(3, 3);
-        let differentCols = new Matrix(2, 4);
+		// 2 x 5
+        const diffNumCols = matrix([
+			[1,2,3,5,4],
+			[1,2,3,5,4],
+		])
 
-        let differentMatrix = new Matrix(2, 3)
-        differentMatrix.setData([
+		// 2 x 3
+        const differentMatrix =matrix([
             [1, 1, 1],
             [1, 0, 1]
         ])
 
-        assertFalse(m.equals(differentCols), "Matrices with different numcols cannot be equal")
-        assertFalse(m.equals(differentRows), "Matrices with different numrows cannot be equal");
-        assertFalse(m.equals(differentMatrix), "Matrices with same numcols and numrow, but with different values cannot be equal");
+        assert(!m.equals(diffNumCols), "Matrices with different numcols cannot be equal")
+        assert(!m.equals(diffNumRows), "Matrices with different numrows cannot be equal");
+        assert(!m.equals(differentMatrix), "Matrices with same numcols and numrow, but with different values cannot be equal");
 
-        assertTrue(m.equals(equal), "Equal matrices should be equal");
-
-    }
-}
-*/
+        assert(m.equals(equal), "Equal matrices should be equal");
+    })
+})
