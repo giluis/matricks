@@ -1,1 +1,3 @@
-export * from './src/matrix.ts'
+import Matrix,{matrix} from './src/matrix.ts'
+
+export { Matrix,matrix }
